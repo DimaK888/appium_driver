@@ -14,8 +14,8 @@ module AppiumDriver
       def start_appium_server
         kill_process_at_port(@port)
 
-        cmd = 'cd $APPIUM_PATH ;\ node .'\
-        " --port #{@port} -U emulator-#{AVDManager.port}"
+        cmd = "cd $APPIUM_PATH ;\ node . --port #{@port} -U emulator-#{Android::AVDManager.port}"
+        # cd $APPIUM_HOME;\node . --avd-args='-port 5556' --avd 'avd_v25_1'
 
         puts cmd
         pid = spawn(cmd, :out => '/dev/null')

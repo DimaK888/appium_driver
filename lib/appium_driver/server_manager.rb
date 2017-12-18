@@ -14,7 +14,7 @@ module AppiumDriver
     end
 
     def search_free_port(range_ports, ip)
-      (range_ports).step(2) do |p|
+      range_ports.step(2) do |p|
         unless is_port_open?(ip, p)
           @port = p
           break
