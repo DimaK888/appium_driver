@@ -2,7 +2,7 @@ module AppiumDriver
   module ServerManager
     include Errno
 
-    def is_port_open?(ip, port)
+    def port_open?(ip, port)
       Timeout.timeout(1) do
         TCPSocket.new(ip, port).close
         return true
@@ -13,9 +13,9 @@ module AppiumDriver
       return false
     end
 
-    def search_free_port(range_ports, ip)
-      range_ports.step(2) do |p|
-        unless is_port_open?(ip, p)
+    def search_free_port(range_ports, ip, step = 2)
+      range_ports.step(step) do |p|
+        unless port_open?(ip, p)
           @port = p
           break
         end
