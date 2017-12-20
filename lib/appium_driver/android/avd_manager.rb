@@ -4,13 +4,13 @@ module AppiumDriver
       def run_emulator
         cmd = "$ANDROID_HOME/tools/emulator -avd #{@avd_name} -port #{@avd_port}"
         puts cmd
-        pid = spawn(cmd, :out => '/dev/null')
+        pid = spawn(cmd, out: '/dev/null')
         Process.detach(pid)
         sleep(30)
       end
 
       def kill_emulator
-        system("adb -s #{@name} emu kill")
+        system("adb -s emulator-#{@avd_port} emu kill")
       end
 
       def create_avd

@@ -17,7 +17,4 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'appium_lib'
   spec.add_runtime_dependency 'pry-byebug'
-  spec.add_runtime_dependency 'socket'
-  spec.add_runtime_dependency 'timeout'
-  spec.add_runtime_dependency 'yaml'
 end

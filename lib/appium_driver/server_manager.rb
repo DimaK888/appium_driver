@@ -1,20 +1,18 @@
 module AppiumDriver
   module ServerManager
-    include Errno
-
     def port_open?(ip, port)
       Timeout.timeout(1) do
         TCPSocket.new(ip, port).close
         return true
       end
-    rescue ECONNREFUSED, EHOSTUNREACH
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
       return false
-    rescue Error
+    rescue Timeout::Error
       return false
     end
 
-    def search_free_port(range_ports, ip, step = 2)
-      range_ports.step(step) do |p|
+    def search_free_port(range_ports, ip)
+      range_ports.step(4) do |p|
         unless port_open?(ip, p)
           @port = p
           break

@@ -4,14 +4,8 @@ require 'socket'
 require 'timeout'
 require 'yaml'
 
-require_relative 'appium_driver/android/avd_manager'
-require_relative 'appium_driver/android/sdk_manager'
-require_relative 'appium_driver/appium_server'
-require_relative 'appium_driver/server_manager'
-require_relative 'appium_driver/version'
-
-# gem_directory = Gem::Specification.find_by_name("appium_driver").gem_dir
-# Dir["#{gem_directory}/lib/appium_driver/**/*.rb"].each { |file| require file }
+gem_directory = Gem::Specification.find_by_name("appium_driver").gem_dir
+Dir["#{gem_directory}/lib/appium_driver/**/*.rb"].each { |file| require file }
 
 module AppiumDriver
   class Driver
@@ -26,13 +20,13 @@ module AppiumDriver
     include Android::AVDManager
     include ServerManager
 
-    def initialize(opts)
+    def initialize(opts = {})
       raise('$ANDROID_HOME not available') unless sdk_home_available?
       raise('$APPIUM_HOME not available') unless appium_home_available?
 
-      @appium_port = opts.fetch :appium_port, search_free_port(4723..4787, '127.0.0.1')
+      @appium_port = opts.fetch :appium_port, search_free_port(4723..4787, '0.0.0.0')
       @sdk_version = opts.fetch :sdk_version, 25 # Android 7.1
-      @avd_port = opts.fetch :avd_port, search_free_port(5556..5620, '127.0.0.1', 4)
+      @avd_port = opts.fetch :avd_port, search_free_port(5556..5620, '127.0.0.1')
       @avd_name = opts.fetch :avd_name, "avd_v#{@sdk_version}_#{@avd_port}"
       @avd_device = opts.fetch :sdk_device, 9 # Nexus 5X
       @threads_count = opts.fetch :threads_count, 1

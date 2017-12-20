@@ -1,14 +1,14 @@
 module AppiumDriver
   module AppiumServer
     def start_appium_server
-      cmd = "cd $APPIUM_HOME ; node . --port #{@appium_port} -U emulator-#{@avd_name}"
+      cmd = "cd $APPIUM_HOME ; node . --port #{@appium_port} -U emulator-#{@avd_port}"
 
       puts cmd
       pid = spawn(cmd, out: '/dev/null')
       Process.detach(pid)
 
       50.times do
-        port_open?('0.0.0.0', @port) ? break : sleep(2)
+        port_open?('0.0.0.0', @appium_port) ? break : sleep(2)
       end
     end
 
@@ -19,11 +19,13 @@ module AppiumDriver
       pid = spawn(cmd, out: '/dev/null')
       Process.detach(pid)
 
-      sleep(10)
+      50.times do
+        port_open?('0.0.0.0', @appium_port) ? break : sleep(2)
+      end
     end
 
     def kill_appium_server
-      kill_process_at_port(@port)
+      kill_process_at_port(@appium_port)
     end
   end
 end
