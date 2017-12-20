@@ -1,5 +1,3 @@
-require 'appium_lib'
-require 'pry-byebug'
 require 'socket'
 require 'timeout'
 require 'yaml'
@@ -24,13 +22,19 @@ module AppiumDriver
       raise('$ANDROID_HOME not available') unless sdk_home_available?
       raise('$APPIUM_HOME not available') unless appium_home_available?
 
+      # @platform = opts.fetch :platform, 'android'
       @appium_port = opts.fetch :appium_port, search_free_port(4723..4787, '0.0.0.0')
       @sdk_version = opts.fetch :sdk_version, 25 # Android 7.1
       @avd_port = opts.fetch :avd_port, search_free_port(5556..5620, '127.0.0.1')
       @avd_name = opts.fetch :avd_name, "avd_v#{@sdk_version}_#{@avd_port}"
       @avd_device = opts.fetch :sdk_device, 9 # Nexus 5X
-      @threads_count = opts.fetch :threads_count, 1
       @reboot_avd = opts.fetch :reboot_avd, false
+      # @uuid =
+      #   if opts[:platform].downcase == 'ios'
+      #     create_sim
+      #   else
+      #     "emulator=#{@avd_port}"
+      #   end
 
       start
     end
