@@ -1,53 +1,62 @@
 module IOS
   class SimCtl
-    class << self
-      def simctl
-        '/Applications/Xcode.app/Contents/Developer/usr/bin/simctl'
-      end
+    attr_reader :platform_name
+    attr_reader :platform_version
+    attr_reader :device_name
+    attr_reader :udid
+    attr_reader :sim_name
 
-      def simulator_app
-        '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app/'
-      end
+    def initialize(args = {})
+      @platform_name = 'iOS'
+      @platform_version = (args.fetch :platform_version, '11.2')
+      @device_name = (args.fetch :device_name, 'iPhone 5s')
+      @sim_name = "#{@device_name.gsub(' ', '-')}_ios#{@platform_version.gsub('.', '-')}"
+      @udid = create_vd
+    end
 
-      def create_vd(opts)
-        ios_v = opts[:platform_version].gsub('.', '-')
-        device_name = opts[:device_name].gsub(' ', '-')
-        sim_name = "#{device_name}_ios#{ios_v}"
+    def simctl
+      '/Applications/Xcode.app/Contents/Developer/usr/bin/simctl'
+    end
 
-        puts "Create simulator #{sim_name}"
+    def simulator_app
+      '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app/'
+    end
 
-        cmd = "#{simctl} create #{sim_name}"
-        cmd << " com.apple.CoreSimulator.SimDeviceType.#{device_name}"
-        cmd << " com.apple.CoreSimulator.SimRuntime.iOS-#{ios_v}"
+    def create_vd
+      puts "Create simulator #{@sim_name}"
 
-        print 'Simulator UDID: '
-        p `#{cmd}`[0..-2]
-      end
+      cmd = "#{simctl} create #{@sim_name}"
+      cmd << " com.apple.CoreSimulator.SimDeviceType.#{@device_name.gsub(' ', '-')}"
+      cmd << " com.apple.CoreSimulator.SimRuntime.iOS-#{@platform_version.gsub('.', '-')}"
 
-      def start_vd(opts)
-        puts "Runing simulator UDID: #{opts[:udid]}"
+      print 'Simulator UDID: '
+      p `#{cmd}`[0..-2]
+    end
 
-        cmd = "#{simctl} boot #{opts[:udid]} ;"
-        cmd << "open #{simulator_app}"
+    def start_vd
+      puts "Runing simulator UDID: #{@udid}"
 
-        system(cmd)
-      end
+      cmd = "#{simctl} boot #{@udid} ; open #{simulator_app}"
 
-      def shutdown_vd(udid)
-        puts "Shutdown simulator UDID: #{udid}"
+      system(cmd)
 
-        system("#{simctl} shutdown #{udid}") unless udid.to_s.empty?
-      end
+      sleep(30)
+    end
 
-      def delete_vd(opts)
-        puts "Delete simulator UDID: #{opts[:udid]}"
+    def shutdown_vd
+      puts "Shutdown simulator UDID: #{@udid}"
 
-        system("#{simctl} delete #{opts[:udid]}") unless opts[:udid].to_s.empty?
-      end
+      system("#{simctl} shutdown #{@udid}") unless @udid.to_s.empty?
+    end
 
-      def list_of_running_vd
-        system("#{simctl} list | grep Booted")
-      end
+    def delete_vd
+      puts "Delete simulator UDID: #{@udid}"
+
+      system("#{simctl} delete #{@udid}") unless @udid.to_s.empty?
+    end
+
+    def list_of_running_vd
+      system("#{simctl} list | grep Booted")
     end
   end
 end

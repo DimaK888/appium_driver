@@ -1,55 +1,61 @@
 module AppiumDriver
   class AppiumServer
-    class << self
-      def start_appium_server(args)
-        puts 'Run Appium server'
+    attr_reader :appium_args
 
-        cmd = "cd $APPIUM_HOME ; node ."
-        cmd << assembly_appium_args(args)
-        puts cmd
+    def initialize(appium_args)
+      appium_args[:port] = search_free_port(4723..4787)
+      @appium_args = appium_args
 
-        pid = spawn(cmd, out: '/dev/null')
-        Process.detach(pid)
+      start_appium_server
+    end
 
-        50.times do
-          ServerManager.port_open?(args[:port]) ? break : sleep(2)
-        end
+    def start_appium_server
+      puts 'Run Appium server'
+
+      cmd = "cd $APPIUM_HOME ; node ."
+      cmd << assembly_appium_args
+      puts cmd
+
+      pid = spawn(cmd, out: '/dev/null')
+      Process.detach(pid)
+
+      30.times do
+        port_open?(@appium_args[:port]) ? break : sleep(1)
       end
+    end
 
-      def assembly_appium_args(args)
-        args = args.dup
+    def kill_appium_server
+      kill_process_at_port(@appium_args[:port])
+    end
 
-        delete_args = [:device_id]
+    def assembly_appium_args
+      args = @appium_args.dup
 
-        delete_args +=
-          if args[:platform_name] == 'ios'
-            [ :bootstrap_port, :suppress_adb_kill_server, :reboot, :avd_args, :avd ]
+      delete_args =
+        if args[:platform_name].downcase == 'ios'
+          [ :device_id, :bootstrap_port, :suppress_adb_kill_server,
+          :reboot, :avd_args, :avd, :sdk_version ]
+        else
+          [ :ipa, :force_iphone, :force_ipad, :webkit_debug_proxy_port,
+          :instruments, :tracetemplate, :safari, :backend_retries, :udid ]
+        end
+
+      delete_args.each { |key| args.delete(key) }
+
+      args_str = ''
+      args.each do |key, value|
+        next if key.to_s.empty? || value.to_s.empty?
+        args_str <<
+          case key
+          when :avd_args
+            str = " --avd-args \""
+            value.each { |k, v| str << " -#{k.to_s.gsub('_', '-')} #{v}" }
+            str << "\""
           else
-            [ :ipa, :force_iphone, :force_ipad, :webkit_debug_proxy_port,
-            :instruments, :tracetemplate, :safari, :backend_retries, :udid ]
+            " --#{key.to_s.gsub('_', '-')} \"#{value}\""
           end
-
-        delete_args.each { |key| args.delete(key) }
-
-        args_str = ''
-        args.each do |key, value|
-          next if key.to_s.empty? || value.to_s.empty?
-          args_str <<
-            case key
-            when :avd_args
-              str = " --avd-args \""
-              value.each { |k, v| str << " -#{k.to_s.gsub('_', '-')} #{v}" }
-              str << "\""
-            else
-              " --#{key.to_s.gsub('_', '-')} \"#{value}\""
-            end
-        end
-        args_str
       end
-
-      def kill_appium_server(port)
-        ServerManager.kill_process_at_port(port)
-      end
+      args_str
     end
   end
 end

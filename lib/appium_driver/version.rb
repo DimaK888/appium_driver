@@ -1,3 +1,3 @@
 module AppiumDriver
-  VERSION = '0.1.6'.freeze
+  VERSION = '0.2.5'.freeze
 end
