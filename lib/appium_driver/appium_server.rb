@@ -1,31 +1,55 @@
 module AppiumDriver
-  module AppiumServer
-    def start_appium_server
-      cmd = "cd $APPIUM_HOME ; node . --port #{@appium_port} -U emulator-#{@avd_port}"
+  class AppiumServer
+    class << self
+      def start_appium_server(args)
+        puts 'Run Appium server'
 
-      puts cmd
-      pid = spawn(cmd, out: '/dev/null')
-      Process.detach(pid)
+        cmd = "cd $APPIUM_HOME ; node ."
+        cmd << assembly_appium_args(args)
+        puts cmd
 
-      50.times do
-        port_open?('0.0.0.0', @appium_port) ? break : sleep(2)
+        pid = spawn(cmd, out: '/dev/null')
+        Process.detach(pid)
+
+        50.times do
+          ServerManager.port_open?(args[:port]) ? break : sleep(2)
+        end
       end
-    end
 
-    def start_appium_server_with_avd
-      cmd = "cd $APPIUM_HOME ; node . --port #{@appium_port} --avd-args='-port #{@avd_port}' --avd='#{@avd_name}'"
+      def assembly_appium_args(args)
+        args = args.dup
 
-      puts cmd
-      pid = spawn(cmd, out: '/dev/null')
-      Process.detach(pid)
+        delete_args = [:device_id]
 
-      50.times do
-        port_open?('0.0.0.0', @appium_port) ? break : sleep(2)
+        delete_args +=
+          if args[:platform_name] == 'ios'
+            [ :bootstrap_port, :suppress_adb_kill_server, :reboot, :avd_args, :avd ]
+          else
+            [ :ipa, :force_iphone, :force_ipad, :webkit_debug_proxy_port,
+            :instruments, :tracetemplate, :safari, :backend_retries, :udid ]
+          end
+
+        delete_args.each { |key| args.delete(key) }
+
+        args_str = ''
+        args.each do |key, value|
+          next if key.to_s.empty? || value.to_s.empty?
+          args_str <<
+            case key
+            when :avd_args
+              str = " --avd-args \""
+              value.each { |k, v| str << " -#{k.to_s.gsub('_', '-')} #{v}" }
+              str << "\""
+            else
+              " --#{key.to_s.gsub('_', '-')} \"#{value}\""
+            end
+        end
+        args_str
       end
-    end
 
-    def kill_appium_server
-      kill_process_at_port(@appium_port)
+      def kill_appium_server(port)
+        ServerManager.kill_process_at_port(port)
+      end
     end
   end
 end
