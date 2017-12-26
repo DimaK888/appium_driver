@@ -7,26 +7,26 @@ APPIUM DRIVER
 
 ### Что нужно для работы appium_driver. Не для Windows юзеров :(
 - **Android SDK** (*для запуска AVD*)
-  - Загружаем [SDK](https://developer.android.com/studio/releases/sdk-tools.html)
-  - Распаковываем
-  - Установка переменной окружения $ANDROID_HOME:
-    - откроем .bash_profile: `nano ~/.bash_profile `
-    - В файл добавьте следующие строки с указанием пути до распакованного SDK:
+  - Загрузить [SDK](https://developer.android.com/studio/releases/sdk-tools.html)
+  - Распаковать
+  - Установить переменную окружения $ANDROID_HOME:
+    - открыть .bash_profile: `nano ~/.bash_profile `
+    - В файл добавить следующие строки с указанием пути до распакованного SDK:
        ```
        export ANDROID_HOME=/YOUR_PATH_TO/android-sdk
        export PATH=$ANDROID_HOME/platform-tools:$PATH
        export PATH=$ANDROID_HOME/tools:$PATH
        ```
-    - Применим изменения: `source ~/.bash_profile`
-    - Проверим. Выполните команду: `echo $ANDROID_HOME`
+    - Применить изменения: `source ~/.bash_profile`
+    - Проверить, выполнив команду: `echo $ANDROID_HOME`
     Должен вывести путь до SDK
 - **Xcode** (*Только OS X. Для запуска iOS Simulator*)
   - Установить из AppStore'a актуальную версию
   - Произвести первый запуск (с автонастройкой)
 - **Appium Server**
-  - Установка gem appium_lib
-    - Установите Ruby, если еще нет: `\curl -sSL https://get.rvm.io | bash -s stable --ruby`
-    - Ставим необходимые гемы:
+  - Установить Ruby, если еще нет: `\curl -sSL https://get.rvm.io | bash -s stable --ruby`
+  - Установить gem appium_lib
+    - Поставить необходимые гемы:
         ```
         gem update --system ;\
         gem install --no-rdoc --no-ri bundler ;\
@@ -38,8 +38,8 @@ APPIUM DRIVER
         gem uninstall -aIx flaky ;\
         gem install --no-rdoc --no-ri flaky
         ```
-  - Cтавим brew: `ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"`
-  - Ставим Nodejs, ant и maven:
+  - Поставить brew: `ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"`
+  - Поставить Nodejs, ant и maven:
       ```
       brew update ;\
       brew upgrade node ;\
@@ -59,12 +59,20 @@ APPIUM DRIVER
       gulp transpile
       node .
       ```
-      - ! Так как мы работаем с XCUITest, следующие строкивыполнять не нужно:
+      - ! Так как работаем с XCUITest, следующие строки выполнять не нужно:
          ```
          npm install -g authorize-ios
          sudo authorize-ios
          ```
-         
+  - Установить переменную окружения $APPIUM_HOME:
+     - открыть .bash_profile: `nano ~/.bash_profile `
+     - В файл добавить следующие строки с указанием пути до папки appium:
+        ```
+        export APPIUM_HOME=/YOUR_PATH_TO/appium
+        ```
+     - Применить изменения: `source ~/.bash_profile`
+     - Проверить, выполнив команду: `echo $APPIUM_HOME`
+     Должен вывести путь до папки appium        
 ### Как использовать
 - Подключение гема: `require 'appium_driver'`
 - Запуск сессии: `driver = Driver.new(caps)`
