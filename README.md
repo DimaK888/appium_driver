@@ -80,8 +80,9 @@ APPIUM DRIVER
   - Желательные параметры:
     - iOS `caps = { platform_name: 'iOS', platform_version: '11.2', device_name: 'iPhone 5s' }`
     - Android `caps = { platform_name: 'Android', platform_version: '7.1', device_name: '9' }`
-- Завершение работы эмулятора/симулятора: `driver.stop`
-- Повторный запуск эмулятора/симулятора: `driver.start`
+- Остановка работы: `driver.stop`
+  - Что происходит: *Завершение работы симулятора/эмулятора и ноды appium'a*
+- Повторный запуск эмулятора/симулятора и ноды appium'a: `driver.start`
 - Завершение сессии: `driver.exit`
   - Что происходит: *Завершение работы и удаление эмулятора/симулятора, закрытие сессии appium ноды*
 - Убийцы процессов:

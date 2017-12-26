@@ -34,10 +34,14 @@ module AppiumDriver
 
     def start
       @vd_ctl.start_vd(10)
+      @appium_server = AppiumServer.new(@appium_args)
+      @appium_args = nil
+      @appium_args = @appium_server.appium_args
     end
 
     def stop
       @vd_ctl.shutdown_vd
+      @appium_server.kill_appium_server
     end
 
     def exit
