@@ -1,11 +1,11 @@
 APPIUM DRIVER
 -------------
 
-###Что это?
+### Что это?
 Гем, упрощающий запуск (в том числе параллельный) тестового окружения для АТ Android и iOS, в частности
 запускает Appium сервер и AVD(Android Virtual Device)/iOS Simulator, с указанными параметрами.
 
-###Что нужно для работы appium_driver. Не для Windows юзеров :(
+### Что нужно для работы appium_driver. Не для Windows юзеров :(
 - **Android SDK** (*для запуска AVD*)
   - Загружаем [SDK](https://developer.android.com/studio/releases/sdk-tools.html)
   - Распаковываем
@@ -65,7 +65,7 @@ APPIUM DRIVER
          sudo authorize-ios
          ```
          
-###Как использовать
+### Как использовать
 - Подключение гема: `require 'appium_driver'`
 - Запуск сессии: `driver = Driver.new(caps)`
   - Желательные параметры:
