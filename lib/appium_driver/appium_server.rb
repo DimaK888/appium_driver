@@ -57,5 +57,11 @@ module AppiumDriver
       end
       args_str
     end
+
+    def self.kill_all_appium_servers
+      (4723..4787).each do |port|
+        port_open?(port) && kill_process_at_port(port)
+      end
+    end
   end
 end

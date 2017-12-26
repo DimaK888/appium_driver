@@ -14,18 +14,10 @@ module IOS
       @udid = create_vd
     end
 
-    def simctl
-      '/Applications/Xcode.app/Contents/Developer/usr/bin/simctl'
-    end
-
-    def simulator_app
-      '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app/'
-    end
-
     def create_vd
       puts "Create simulator #{@sim_name}"
 
-      cmd = "#{simctl} create #{@sim_name}"
+      cmd = "#{self.class.simctl} create #{@sim_name}"
       cmd << " com.apple.CoreSimulator.SimDeviceType.#{@device_name.gsub(' ', '-')}"
       cmd << " com.apple.CoreSimulator.SimRuntime.iOS-#{@platform_version.gsub('.', '-')}"
 
@@ -33,30 +25,57 @@ module IOS
       p `#{cmd}`[0..-2]
     end
 
-    def start_vd
-      puts "Runing simulator UDID: #{@udid}"
+    def start_vd(sleep_duration = 30)
+      puts "Running simulator UDID: #{@udid}"
 
-      cmd = "#{simctl} boot #{@udid} ; open #{simulator_app}"
+      cmd = "#{self.class.simctl} boot #{@udid} ; open #{self.class.simulator_app}"
 
       system(cmd)
 
-      sleep(30)
+      sleep(sleep_duration)
     end
 
     def shutdown_vd
-      puts "Shutdown simulator UDID: #{@udid}"
-
-      system("#{simctl} shutdown #{@udid}") unless @udid.to_s.empty?
+      self.class.shutdown_vd(@udid)
     end
 
     def delete_vd
-      puts "Delete simulator UDID: #{@udid}"
-
-      system("#{simctl} delete #{@udid}") unless @udid.to_s.empty?
+      self.class.delete_vd(@udid)
     end
 
-    def list_of_running_vd
-      system("#{simctl} list | grep Booted")
+    class << self
+      def shutdown_vd(udid)
+        puts "Shutdown simulator UDID: #{udid}"
+
+        system("#{simctl} shutdown #{udid}") unless udid.to_s.empty?
+      end
+
+      def delete_vd(udid)
+        puts "Delete simulator UDID: #{udid}"
+
+        system("#{simctl} delete #{udid}") unless udid.to_s.empty?
+      end
+
+      def udid_list_of_booted_simulators
+        `#{simctl} list | grep Booted`.
+          split("\n").
+          map { |sim| sim.strip.split[1][1..-2] }
+      end
+
+      def kill_all_booted_simulators
+        udid_list_of_booted_simulators.each do |udid|
+          shutdown_vd(udid)
+          delete_vd(udid)
+        end
+      end
+
+      def simctl
+        '/Applications/Xcode.app/Contents/Developer/usr/bin/simctl'
+      end
+
+      def simulator_app
+        '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app/'
+      end
     end
   end
 end

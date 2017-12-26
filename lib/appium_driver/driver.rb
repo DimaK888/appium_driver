@@ -4,6 +4,8 @@ module AppiumDriver
   include ServerManager
 
   class Driver
+    attr_reader :appium_args
+
     def initialize(appium_args = {})
       raise('$ANDROID_HOME not available') if `echo $ANDROID_HOME`.empty?
       raise('$APPIUM_HOME not available') if `echo $APPIUM_HOME`.empty?
@@ -23,33 +25,44 @@ module AppiumDriver
       appium_args[:platform_version] = @vd_ctl.platform_version
       appium_args[:device_name] = @vd_ctl.device_name
 
-      @vd_ctl.start_vd
+      @appium_args = appium_args
 
+      @vd_ctl.start_vd
       @appium_server = AppiumServer.new(appium_args)
+      @appium_args = @appium_server.appium_args
+    end
+
+    def start
+      @vd_ctl.start_vd(10)
     end
 
     def stop
       @vd_ctl.shutdown_vd
+    end
+
+    def exit
+      stop
       @vd_ctl.delete_vd
       @appium_server.kill_appium_server
+      super
     end
   end
 
-  def kill_all
-    kill_all_emulators
-    kill_all_appium_servers
+  def kill_all_booted_simulators
+    IOS::SimCtl.kill_all_booted_simulators
+  end
+
+  def kill_all_booted_emulators
+    Android::AVDManager.kill_all_booted_emulators
   end
 
   def kill_all_appium_servers
-    (4723..4787).each do |port|
-      port_open?(port) && kill_process_at_port(port)
-    end
+    AppiumServer.kill_all_appium_servers
   end
 
-  def kill_all_emulators
-    emulator_list = `adb devices | grep emulator | cut -f1`.split("\n")
-    emulator_list.each do |name|
-      `adb -s #{name} emu kill`
-    end
+  def kill_all
+    kill_all_booted_simulators
+    kill_all_booted_emulators
+    kill_all_appium_servers
   end
 end

@@ -76,12 +76,22 @@ APPIUM DRIVER
 ### Как использовать
 - Подключение гема: `require 'appium_driver'`
 - Запуск сессии: `driver = Driver.new(caps)`
+  - Что происходит: *Создание эмулятора/симулятора устройста, его запуск и запуск appium ноды*
   - Желательные параметры:
     - iOS `caps = { platform_name: 'iOS', platform_version: '11.2', device_name: 'iPhone 5s' }`
     - Android `caps = { platform_name: 'Android', platform_version: '7.1', device_name: '9' }`
-- Завершение сессии: `driver.stop`
+- Завершение работы эмулятора/симулятора: `driver.stop`
+- Повторный запуск эмулятора/симулятора: `driver.start`
+- Завершение сессии: `driver.exit`
+  - Что происходит: *Завершение работы и удаление эмулятора/симулятора, закрытие сессии appium ноды*
 - Убийцы процессов:
-  - Убить все потоки и **эмуляторы** (TODO: убийство всех запущенных симуляторов): `kill_all`
-  - Убить все Appium сервера: `kill_all_appium_servers`
-  - Убить все эмуляторы: `kill_all_emulators`
-  
+  - Убить все потоки и эмуляторы/симуляторы: `kill_all`
+  - Убить все запущенные сессии Appium сервера: `kill_all_appium_servers`
+  - Убить все запущенные симуляторы: `kill_all_booted_simulators`
+  - Убить все запущенные эмуляторы: `kill_all_booted_emulators`
+- Завершение работы эмулятора/симулятора:
+  - iOS: `IOS::SimCtl.shutdown_vd(UDID)`
+  - Android: `Android::AVDManager.shutdown_vd(port)`, где port - это порт, на котором запущен эмулятор
+- Удаление эмулятора/симулятора:
+  - iOS: `IOS::SimCtl.delete_vd(UDID)`
+  - Android: `Android::AVDManager.delete_vd(avd)`, где avd - это имя avd
