@@ -26,23 +26,21 @@ APPIUM DRIVER
 - **Appium Server**
   - Установить Ruby, если еще нет: `\curl -sSL https://get.rvm.io | bash -s stable --ruby`
   - Установить gem appium_lib
-    - Поставить необходимые гемы:
-        ```
-        gem update --system ;\
-        gem install --no-rdoc --no-ri bundler ;\
-        gem update ;\
-        gem cleanup ;\
-        gem uninstall -aIx appium_lib ;\
-        gem uninstall -aIx appium_console ;\
-        gem install --no-rdoc --no-ri appium_console ;\
-        gem uninstall -aIx flaky ;\
-        gem install --no-rdoc --no-ri flaky
-        ```
+    ```
+    gem update --system ;\
+    gem install --no-rdoc --no-ri bundler ;\
+    gem update ;\
+    gem cleanup ;\
+    gem uninstall -aIx appium_lib ;\
+    gem uninstall -aIx appium_console ;\
+    gem install --no-rdoc --no-ri appium_console ;\
+    gem uninstall -aIx flaky ;\
+    gem install --no-rdoc --no-ri flaky
+    ```
   - Поставить brew: `ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"`
-  - Поставить Nodejs, ant и maven:
+  - Поставить Node.js, ant и maven:
       ```
       brew update ;\
-      brew upgrade node ;\
       brew install node ;\
       brew install ant ;\
       brew install maven
