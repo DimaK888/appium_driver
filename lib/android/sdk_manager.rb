@@ -14,12 +14,12 @@ module Android
       sdk_list.default = '25'
       sdk_list[platform_version.to_s]
     end
-    
+
     def install_sdk(version)
       puts "Install SDK #{version}"
 
       system(
-        "$ANDROID_HOME/tools/bin/sdkmanager "\
+        '$ANDROID_HOME/tools/bin/sdkmanager '\
         "\"system-images;android-#{version};google_apis;x86\""
       )
     end
@@ -28,7 +28,7 @@ module Android
       puts "Uninstall SDK #{version}"
 
       system(
-        "$ANDROID_HOME/tools/bin/sdkmanager --uninstall "\
+        '$ANDROID_HOME/tools/bin/sdkmanager --uninstall '\
         "\"system-images;android-#{version};google_apis;x86\""
       )
     end
@@ -36,7 +36,7 @@ module Android
     def update_sdk
       puts 'Update SDK'
 
-      system("$ANDROID_HOME/tools/bin/sdkmanager --update")
+      system('$ANDROID_HOME/tools/bin/sdkmanager --update')
     end
   end
 end

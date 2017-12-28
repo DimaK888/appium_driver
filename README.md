@@ -72,6 +72,14 @@ APPIUM DRIVER
      - Проверить, выполнив команду: `echo $APPIUM_HOME`
      Должен вывести путь до папки appium        
 ### Как использовать
+- Установка гема:
+  - Клонировать репозиторий appium_driver:
+    ```
+    git clone https://github.com/DimaK888/appium_driver.git
+    ```
+  - Перейти в директорию: `cd appium_driver`
+  - Собрать гем: `gem build appium_driver.gemspec`
+  - Установить: `gem install appium_driver`
 - Подключение гема: `require 'appium_driver'`
 - Запуск сессии: `driver = Driver.new(caps)`
   - Что происходит: *Создание эмулятора/симулятора устройста, его запуск и запуск appium ноды*
@@ -79,7 +87,7 @@ APPIUM DRIVER
     - iOS `caps = { platform_name: 'iOS', platform_version: '11.2', device_name: 'iPhone 5s' }`
     - Android `caps = { platform_name: 'Android', platform_version: '7.1', device_name: '9' }`
 - Остановка работы: `driver.stop`
-  - Что происходит: *Завершение работы симулятора/эмулятора и ноды appium'a*
+  - Что происходит: *Завершение работы симулятора/эмулятора и ноды appium'a **без удаления симулятора/эмулятора***
 - Повторный запуск эмулятора/симулятора и ноды appium'a: `driver.start`
 - Завершение сессии: `driver.exit`
   - Что происходит: *Завершение работы и удаление эмулятора/симулятора, закрытие сессии appium ноды*

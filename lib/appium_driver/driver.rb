@@ -33,7 +33,7 @@ module AppiumDriver
     end
 
     def start
-      @vd_ctl.start_vd(10)
+      @vd_ctl.start_vd(sleep_duration: 10)
       @appium_server = AppiumServer.new(@appium_args)
       @appium_args = nil
       @appium_args = @appium_server.appium_args
@@ -47,26 +47,7 @@ module AppiumDriver
     def exit
       stop
       @vd_ctl.delete_vd
-      @appium_server.kill_appium_server
       super
     end
-  end
-
-  def kill_all_booted_simulators
-    IOS::SimCtl.kill_all_booted_simulators
-  end
-
-  def kill_all_booted_emulators
-    Android::AVDManager.kill_all_booted_emulators
-  end
-
-  def kill_all_appium_servers
-    AppiumServer.kill_all_appium_servers
-  end
-
-  def kill_all
-    kill_all_booted_simulators
-    kill_all_booted_emulators
-    kill_all_appium_servers
   end
 end

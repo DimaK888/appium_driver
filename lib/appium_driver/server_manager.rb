@@ -1,19 +1,19 @@
 module AppiumDriver
   module ServerManager
-    def port_open?(port, ip = '127.0.0.1')
+    LOCALHOST = '127.0.0.1'.freeze
+
+    def port_open?(port, ip: LOCALHOST)
       Timeout.timeout(1) do
         TCPSocket.new(ip, port).close
-        return true
+        true
       end
-    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-      return false
-    rescue Timeout::Error
-      return false
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Timeout::Error
+      false
     end
 
-    def search_free_port(range_ports, ip = '127.0.0.1')
+    def search_free_port(range_ports, ip: LOCALHOST)
       range_ports.step(4) do |port|
-        return port unless port_open?(port, ip)
+        return port unless port_open?(port, ip: ip)
       end
     end
 

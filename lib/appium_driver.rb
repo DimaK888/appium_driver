@@ -1,3 +1,4 @@
+require 'json'
 require 'socket'
 require 'timeout'
 
@@ -10,3 +11,23 @@ require 'appium_driver/appium_server'
 require 'appium_driver/driver'
 
 include AppiumDriver
+
+module AppiumDriver
+  def kill_all_booted_simulators
+    IOS::SimCtl.kill_all_booted_simulators
+  end
+
+  def kill_all_booted_emulators
+    Android::AVDManager.kill_all_booted_emulators
+  end
+
+  def kill_all_appium_servers
+    AppiumServer.kill_all_appium_servers
+  end
+
+  def kill_all
+    kill_all_booted_simulators
+    kill_all_booted_emulators
+    kill_all_appium_servers
+  end
+end

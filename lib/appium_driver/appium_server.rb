@@ -2,8 +2,10 @@ module AppiumDriver
   class AppiumServer
     attr_reader :appium_args
 
+    DEFAULT_APPIUM_PORTS = 4723..4787
+
     def initialize(appium_args)
-      appium_args[:port] = search_free_port(4723..4787)
+      appium_args[:port] = search_free_port(DEFAULT_APPIUM_PORTS)
       @appium_args = appium_args
 
       start_appium_server
@@ -12,7 +14,7 @@ module AppiumDriver
     def start_appium_server
       puts 'Run Appium server'
 
-      cmd = "cd $APPIUM_HOME ; node ."
+      cmd = 'cd $APPIUM_HOME ; node .'
       cmd << assembly_appium_args
       puts cmd
 
@@ -31,16 +33,7 @@ module AppiumDriver
     def assembly_appium_args
       args = @appium_args.dup
 
-      delete_args =
-        if args[:platform_name].downcase == 'ios'
-          [ :device_id, :bootstrap_port, :suppress_adb_kill_server,
-          :reboot, :avd_args, :avd, :sdk_version ]
-        else
-          [ :ipa, :force_iphone, :force_ipad, :webkit_debug_proxy_port,
-          :instruments, :tracetemplate, :safari, :backend_retries, :udid ]
-        end
-
-      delete_args.each { |key| args.delete(key) }
+      delete_args(args).each { |key| args.delete(key) }
 
       args_str = ''
       args.each do |key, value|
@@ -48,18 +41,44 @@ module AppiumDriver
         args_str <<
           case key
           when :avd_args
-            str = " --avd-args \""
-            value.each { |k, v| str << " -#{k.to_s.gsub('_', '-')} #{v}" }
-            str << "\""
+            str = ' --avd-args "'
+            value.each { |k, v| str << " -#{k.to_s.tr('_', '-')} #{v}" }
+            str << '"'
           else
-            " --#{key.to_s.gsub('_', '-')} \"#{value}\""
+            " --#{key.to_s.tr('_', '-')} \"#{value}\""
           end
       end
       args_str
     end
 
+    def delete_args(args)
+      if args[:platform_name].downcase == 'ios'
+        %i[
+          device_id
+          bootstrap_port
+          suppress_adb_kill_server
+          reboot
+          avd_args
+          avd
+          sdk_version
+        ]
+      else
+        %i[
+          ipa
+          force_iphone
+          force_ipad
+          webkit_debug_proxy_port
+          instruments
+          tracetemplate
+          safari
+          backend_retries
+          udid
+        ]
+      end
+    end
+
     def self.kill_all_appium_servers
-      (4723..4787).each do |port|
+      DEFAULT_APPIUM_PORTS.each do |port|
         port_open?(port) && kill_process_at_port(port)
       end
     end

@@ -10,7 +10,7 @@ module IOS
       @platform_name = 'iOS'
       @platform_version = (args.fetch :platform_version, '11.2')
       @device_name = (args.fetch :device_name, 'iPhone 5s')
-      @sim_name = "#{@device_name.gsub(' ', '-')}_ios#{@platform_version.gsub('.', '-')}"
+      @sim_name = "#{@device_name.tr(' ', '-')}_ios#{@platform_version.tr('.', '-')}"
       @udid = create_vd
     end
 
@@ -18,14 +18,14 @@ module IOS
       puts "Create simulator #{@sim_name}"
 
       cmd = "#{self.class.simctl} create #{@sim_name}"
-      cmd << " com.apple.CoreSimulator.SimDeviceType.#{@device_name.gsub(' ', '-')}"
-      cmd << " com.apple.CoreSimulator.SimRuntime.iOS-#{@platform_version.gsub('.', '-')}"
+      cmd << " com.apple.CoreSimulator.SimDeviceType.#{@device_name.tr(' ', '-')}"
+      cmd << " com.apple.CoreSimulator.SimRuntime.iOS-#{@platform_version.tr('.', '-')}"
 
       print 'Simulator UDID: '
       p `#{cmd}`[0..-2]
     end
 
-    def start_vd(sleep_duration = 30)
+    def start_vd(sleep_duration: 30)
       puts "Running simulator UDID: #{@udid}"
 
       cmd = "#{self.class.simctl} boot #{@udid} ; open #{self.class.simulator_app}"
@@ -45,21 +45,21 @@ module IOS
 
     class << self
       def shutdown_vd(udid)
-        puts "Shutdown simulator UDID: #{udid}"
-
-        system("#{simctl} shutdown #{udid}") unless udid.to_s.empty?
+        if udid_list_of_booted_simulators.include?(udid)
+          puts "Shutdown simulator UDID: #{udid}"
+          system("#{simctl} shutdown #{udid}")
+        else
+          puts "Simulator UDID: #{udid} already shutdown"
+        end
       end
 
       def delete_vd(udid)
-        puts "Delete simulator UDID: #{udid}"
-
-        system("#{simctl} delete #{udid}") unless udid.to_s.empty?
-      end
-
-      def udid_list_of_booted_simulators
-        `#{simctl} list | grep Booted`.
-          split("\n").
-          map { |sim| sim.strip.split[1][1..-2] }
+        if simulator_list.map { |sim| sim['udid'] }.include?(udid)
+          puts "Delete simulator UDID: #{udid}"
+          system("#{simctl} delete #{udid}")
+        else
+          puts "Simulator UDID: #{udid} already deleted"
+        end
       end
 
       def kill_all_booted_simulators
@@ -67,6 +67,29 @@ module IOS
           shutdown_vd(udid)
           delete_vd(udid)
         end
+      end
+
+      def udid_list_of_booted_simulators
+        search_simulators('state' => 'Booted').map { |sim| sim['udid'] }
+      end
+
+      def search_simulators(param)
+        simulator_list.select { |sim| sim.to_a.include?(param.to_a.first) }
+      end
+
+      def simulator_list
+        list = JSON.parse(`#{simctl} list devices -j`)['devices']
+        list.delete_if { |device_type, _| !device_type.include?('iOS ') }
+
+        @devices_list = []
+
+        list.map do |ios_version, devices_list|
+          devices_list.map do |device|
+            @devices_list << device.merge!('ios' => ios_version.split.last)
+          end
+        end
+
+        @devices_list
       end
 
       def simctl
