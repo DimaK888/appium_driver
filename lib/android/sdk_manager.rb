@@ -1,19 +1,20 @@
 module Android
   module SDKManager
     def converting_to_sdk_version(platform_version)
-      case platform_version.to_f
-      when 4.1 then '16'
-      when 4.4 then '19'
-      when 5.0 then '21'
-      when 5.1 then '22'
-      when 6.0 then '23'
-      when 7.0 then '24'
-      when 7.1 then '25'
-      when 8.0 then '26'
-      else ''
-      end
+      sdk_list = {
+        '4.1' => '16',
+        '4.4' => '19',
+        '5.0' => '21',
+        '5.1' => '22',
+        '6.0' => '23',
+        '7.0' => '24',
+        '7.1' => '25',
+        '8.0' => '26'
+      }
+      sdk_list.default = '25'
+      sdk_list[platform_version.to_s]
     end
-
+    
     def install_sdk(version)
       puts "Install SDK #{version}"
 
