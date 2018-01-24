@@ -10,6 +10,8 @@ module AppiumDriver
       raise('$ANDROID_HOME not available') if `echo $ANDROID_HOME`.empty?
       raise('$APPIUM_HOME not available') if `echo $APPIUM_HOME`.empty?
 
+      appium_args = symbolize_keys(appium_args)
+
       appium_args[:platform_name] ||= 'android'
 
       if appium_args[:platform_name].downcase == 'ios'
@@ -44,10 +46,9 @@ module AppiumDriver
       @appium_server.kill_appium_server
     end
 
-    def exit
+    def quit
       stop
       @vd_ctl.delete_vd
-      super
     end
   end
 end

@@ -30,4 +30,10 @@ module AppiumDriver
     kill_all_booted_emulators
     kill_all_appium_servers
   end
+
+  def symbolize_keys(hash)
+    hash.each_with_object({}) do |(key, value), h|
+      h[key.to_sym] = value.is_a?(Hash) ? symbolize_keys(value) : value
+    end
+  end
 end
