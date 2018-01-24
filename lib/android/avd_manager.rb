@@ -23,13 +23,13 @@ module Android
       @avd_args = { port: search_free_port(DEFAULT_AVD_PORTS) }
       @avd = "avd_v#{@sdk_version}_#{@avd_args[:port]}"
 
-      create_vd
+      create
     end
 
-    def create_vd
+    def create
       if vd_exists?
         puts "Emulator with name: #{@avd} already exists"
-        delete_vd
+        delete
       end
 
       puts "Create emulator with name: #{@avd} and sdk: #{@sdk_version}"
@@ -46,15 +46,21 @@ module Android
       end
     end
 
-    def start_vd(sleep_duration: 30)
+    def start(sleep_duration: 30, erase: false)
       puts "Running AVD #{@avd}"
 
       cmd = "$ANDROID_HOME/tools/emulator -avd #{@avd} -port #{@avd_args[:port]}"
+      cmd << ' -wipe-data' if erase
 
       pid = spawn(cmd, out: '/dev/null')
       Process.detach(pid)
 
       sleep(sleep_duration)
+    end
+
+    def erase
+      shutdown
+      start(erase: true)
     end
 
     def vd_exists?
@@ -65,16 +71,16 @@ module Android
       `$ANDROID_HOME/tools/bin/avdmanager list device | grep 'id: #{@device_id} or'`.split('"')[1]
     end
 
-    def shutdown_vd
-      self.class.shutdown_vd(@avd_args[:port])
+    def shutdown
+      self.class.shutdown(@avd_args[:port])
     end
 
-    def delete_vd
-      self.class.delete_vd(@avd)
+    def delete
+      self.class.delete(@avd)
     end
 
     class << self
-      def shutdown_vd(port)
+      def shutdown(port)
         puts "Shutdown AVD: emulator-#{port}"
 
         system("adb -s emulator-#{port} emu kill")
@@ -84,7 +90,7 @@ module Android
         end
       end
 
-      def delete_vd(avd)
+      def delete(avd)
         puts "Delete AVD: #{avd}"
 
         system("$ANDROID_HOME/tools/bin/avdmanager delete avd -n #{avd}")

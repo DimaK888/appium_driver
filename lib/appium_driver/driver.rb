@@ -29,26 +29,35 @@ module AppiumDriver
 
       @appium_args = appium_args
 
-      @vd_ctl.start_vd
-      @appium_server = AppiumServer.new(appium_args)
-      @appium_args = @appium_server.appium_args
+      @vd_ctl.start
+      start_appium_server
     end
 
-    def start
-      @vd_ctl.start_vd(sleep_duration: 10)
+    def start_appium_server
       @appium_server = AppiumServer.new(@appium_args)
       @appium_args = nil
       @appium_args = @appium_server.appium_args
     end
 
+    def start
+      @vd_ctl.start(sleep_duration: 10)
+      start_appium_server
+    end
+
     def stop
-      @vd_ctl.shutdown_vd
+      @vd_ctl.shutdown
       @appium_server.kill_appium_server
+    end
+
+    def erase_and_start
+      @appium_server.kill_appium_server
+      @vd_ctl.erase
+      start_appium_server
     end
 
     def quit
       stop
-      @vd_ctl.delete_vd
+      @vd_ctl.delete
     end
   end
 end

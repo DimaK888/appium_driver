@@ -11,10 +11,10 @@ module IOS
       @platform_version = (args.fetch :platform_version, '11.2')
       @device_name = (args.fetch :device_name, 'iPhone 5s')
       @sim_name = "#{@device_name.tr(' ', '-')}_ios#{@platform_version.tr('.', '-')}"
-      @udid = create_vd
+      @udid = create
     end
 
-    def create_vd
+    def create
       puts "Create simulator #{@sim_name}"
 
       cmd = "#{self.class.simctl} create #{@sim_name}"
@@ -25,26 +25,34 @@ module IOS
       p `#{cmd}`[0..-2]
     end
 
-    def start_vd(sleep_duration: 30)
+    def start(sleep_duration: 30)
       puts "Running simulator UDID: #{@udid}"
 
-      cmd = "#{self.class.simctl} boot #{@udid} ; open #{self.class.simulator_app}"
-
-      system(cmd)
+      system("#{self.class.simctl} boot #{@udid}")
+      system("open #{self.class.simulator_app}")
 
       sleep(sleep_duration)
     end
 
-    def shutdown_vd
-      self.class.shutdown_vd(@udid)
+    def shutdown
+      self.class.shutdown(@udid)
     end
 
-    def delete_vd
-      self.class.delete_vd(@udid)
+    def delete
+      self.class.delete(@udid)
+    end
+
+    def erase
+      shutdown
+      if system("#{self.class.simctl} erase  #{@udid}")
+        puts "Simulator UDID: #{@udid} is erased"
+      end
+      sleep(2)
+      start
     end
 
     class << self
-      def shutdown_vd(udid)
+      def shutdown(udid)
         if udid_list_of_booted_simulators.include?(udid)
           puts "Shutdown simulator UDID: #{udid}"
           system("#{simctl} shutdown #{udid}")
@@ -53,7 +61,7 @@ module IOS
         end
       end
 
-      def delete_vd(udid)
+      def delete(udid)
         if simulator_list.map { |sim| sim['udid'] }.include?(udid)
           puts "Delete simulator UDID: #{udid}"
           system("#{simctl} delete #{udid}")
@@ -64,8 +72,8 @@ module IOS
 
       def kill_all_booted_simulators
         udid_list_of_booted_simulators.each do |udid|
-          shutdown_vd(udid)
-          delete_vd(udid)
+          shutdown(udid)
+          delete(udid)
         end
       end
 
